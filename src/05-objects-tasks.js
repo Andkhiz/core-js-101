@@ -20,8 +20,13 @@
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  // throw new Error('Not implemented');
+  return {
+    width,
+    height,
+    getArea() { return this.width * this.height; },
+  };
 }
 
 
@@ -35,8 +40,9 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  // throw new Error('Not implemented');
+  return JSON.stringify(obj);
 }
 
 
@@ -51,8 +57,9 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  // throw new Error('Not implemented');
+  return Object.assign(Object.create(proto), JSON.parse(json));
 }
 
 
@@ -111,32 +118,113 @@ function fromJSON(/* proto, json */) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+
+  stringify() {
+    const a = this.css;
+    this.css = '';
+    this.prizn = undefined;
+    return a;
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    // throw new Error('Not implemented');
+    if (this === undefined || this.css === undefined) {
+      const a = Object.create(cssSelectorBuilder);
+      a.css = value;
+      a.prizn = 1;
+      return a;
+    }
+    this.createErr(1);
+    this.css = value;
+    this.prizn = 1;
+    return this;
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    // throw new Error('Not implemented');
+    if (this === undefined || this.css === undefined) {
+      const a = Object.create(cssSelectorBuilder);
+      a.css = `#${value}`;
+      a.prizn = 2;
+      return a;
+    }
+    this.createErr(2);
+    this.css = `${this.css}#${value}`;
+    this.prizn = 2;
+    return this;
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    // throw new Error('Not implemented');
+    if (this === undefined || this.css === undefined) {
+      const a = Object.create(cssSelectorBuilder);
+      a.css = `.${value}`;
+      a.prizn = 3;
+      return a;
+    }
+    this.createErr(3);
+    this.css = `${this.css}.${value}`;
+    this.prizn = 3;
+    return this;
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    // throw new Error('Not implemented');
+    if (this === undefined || this.css === undefined) {
+      const a = Object.create(cssSelectorBuilder);
+      a.css = `[${value}]`;
+      a.prizn = 4;
+      return a;
+    }
+    this.createErr(4);
+    this.css = `${this.css}[${value}]`;
+    this.prizn = 4;
+    return this;
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    // throw new Error('Not implemented');
+    if (this === undefined || this.css === undefined) {
+      const a = Object.create(cssSelectorBuilder);
+      a.css = `:${value}`;
+      a.prizn = 5;
+      return a;
+    }
+    this.createErr(5);
+    this.css = `${this.css}:${value}`;
+    this.prizn = 5;
+    return this;
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    // throw new Error('Not implemented');
+    if (this === undefined || this.css === undefined) {
+      const a = Object.create(cssSelectorBuilder);
+      a.css = `::${value}`;
+      a.prizn = 6;
+      return a;
+    }
+    this.createErr(6);
+    this.css = `${this.css}::${value}`;
+    this.prizn = 6;
+    return this;
+  },
+
+  combine(selector1, combinator, selector2) {
+    // throw new Error('Not implemented');
+    const a = Object.create(cssSelectorBuilder);
+    a.css = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    return a;
+  },
+
+  createErr(prizn) {
+    if (this.prizn > prizn) {
+      throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    if (this.prizn === prizn
+      && (prizn === 1 || prizn === 2 || prizn === 6)) {
+      throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    }
   },
 };
 
